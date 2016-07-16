@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(forbot_follower)
+project(jetson_follower)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
-  tf
   cv_bridge
 )
 
@@ -59,13 +58,13 @@ add_definitions(-DPROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 ## Catkin depends
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES forbot_follower
-  CATKIN_DEPENDS roscpp sensor_msgs tf cv_bridge
+#  LIBRARIES jetson_follower
+  CATKIN_DEPENDS roscpp sensor_msgs cv_bridge
 #  DEPENDS system_lib
 )
 
 include_directories(
-  include/forbot_follower
+  include/jetson_follower
   ${catkin_INCLUDE_DIRS}
   ${QT_INCLUDE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -79,20 +78,20 @@ qt4_wrap_ui(UI_SRCS ui/calibration.ui)
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-O3 -gencode arch=compute_30,code=sm_30 --ptxas-options=-v --maxrregcount=32)
 
 # Add cuda library for files using cuda methods
-cuda_add_library(forbot_follower_cuda SHARED include/forbot_follower/gpu_utils.cuh src/gpu_utils.cu)
-target_link_libraries(forbot_follower_cuda ${OpenCV_LIBS} -lboost_system -lboost_chrono -lpthread -lpng)
+cuda_add_library(jetson_follower_cuda SHARED include/jetson_follower/gpu_utils.cuh src/gpu_utils.cu)
+target_link_libraries(jetson_follower_cuda ${OpenCV_LIBS} -lboost_system -lboost_chrono -lpthread -lpng)
 
 # C++11 flag
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # determine HSV
-add_executable(forbot_calibration
+add_executable(jetson_calibration
   src/main_calibration.cpp
-  src/calibration.cpp include/forbot_follower/calibration.h
-  src/ros_wrapper.cpp include/forbot_follower/ros_wrapper.h
+  src/calibration.cpp include/jetson_follower/calibration.h
+  src/ros_wrapper.cpp include/jetson_follower/ros_wrapper.h
   ${UI_SRCS})
-target_link_libraries(forbot_calibration ${QT_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBS} -lyaml-cpp)
+target_link_libraries(jetson_calibration ${QT_LIBRARIES} ${catkin_LIBRARIES} ${OpenCV_LIBS} -lyaml-cpp)
 
 # track!
-add_executable(forbot_follower src/main_follower.cpp src/follower.cpp include/forbot_follower/follower.h)
-target_link_libraries(forbot_follower forbot_follower_cuda ${catkin_LIBRARIES} ${OpenCV_LIBS} -lyaml-cpp)
+add_executable(jetson_follower src/main_follower.cpp src/follower.cpp include/jetson_follower/follower.h)
+target_link_libraries(jetson_follower jetson_follower_cuda ${catkin_LIBRARIES} ${OpenCV_LIBS} -lyaml-cpp)
